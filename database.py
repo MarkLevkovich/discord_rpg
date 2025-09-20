@@ -29,6 +29,32 @@ def init_db(cur) -> None:
             damage INTEGER
     )""")
 
+@connect
+def load_players(cur, player_id: str) -> Optional[Dict[str, int]]:
+    cur.execute("""
+        SELECT current_hp, max_hp, damage
+        FROM players
+        WHERE player_id = ?
+    """, (player_id,))
+
+    result = cur.fetchone()
+
+    if result:
+        return {'current_hp': result[0], 'max_hp': result[1], 'damage': result[2]}
+    return None
+
+
+
+@connect
+def save_player(cur, player_id: str, player_data: list) -> None:
+    cur.execute("""
+        INSERT OR REPLACE INTO players (player_id, current_hp, max_hp, damage)
+        VALUES (?,?,?,?)
+    """, [player_id] + player_data)
+
+
 
 if __name__=="__main__":
     init_db()
+    print(load_players(1))
+    save_player(2, [100,100,50])
