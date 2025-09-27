@@ -99,6 +99,11 @@ def load_locations(cur, loc_id: int = None, loc_name: str = None) -> List[Dict]:
 
 
 
+def update_location(cur, player_id: str, loc_id: int) -> None:
+    cur.execute('UPDATE players SET current_location_id = ? WHERE player_id = ?', (loc_id, player_id))
+
+
+
 
 
 
