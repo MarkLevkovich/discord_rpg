@@ -50,7 +50,7 @@ def init_db(cur) -> None:
 @connect
 def load_players(cur, player_id: str) -> Optional[Dict[str, int]]:
     cur.execute("""
-        SELECT current_hp, max_hp, damage
+        SELECT current_hp, max_hp, damage, current_location_id, passed_locations, current_boss_hp
         FROM players
         WHERE player_id = ?
     """, (player_id,))
@@ -58,7 +58,14 @@ def load_players(cur, player_id: str) -> Optional[Dict[str, int]]:
     result = cur.fetchone()
 
     if result:
-        return {'current_hp': result[0], 'max_hp': result[1], 'damage': result[2]}
+        return {
+            'current_hp': result[0],
+            'max_hp': result[1],
+            'damage': result[2],
+            'current_location_id': result[3],
+            'passed_locations': result[4] if result[4] else '',
+            'current_boss_hp': result[5]
+        }
     return None
 
 
@@ -66,9 +73,37 @@ def load_players(cur, player_id: str) -> Optional[Dict[str, int]]:
 @connect
 def save_player(cur, player_id: str, player_data: list) -> None:
     cur.execute("""
-        INSERT OR REPLACE INTO players (player_id, current_hp, max_hp, damage)
-        VALUES (?,?,?,?)
+        INSERT OR REPLACE INTO players (player_id, current_hp, max_hp, damage, current_location_id, passed_locations, current_boss_hp)
+        VALUES (?,?,?,?,?,?,?)
     """, [player_id] + player_data)
+
+
+
+@connect
+def load_locations(cur, loc_id: int = None, loc_name: str = None) -> List[Dict]:
+    sql = 'SELECT location_id, location_name, boss_name, boss_hp, boss_dmg, FROM locations'
+    params = ()
+
+    if loc_id is None:
+        sql += ' WHERE location_id = ?'
+        params = (loc_id,)
+    elif loc_name:
+        sql += ' WHERE location_name = ?'
+        params = (loc_name,)
+
+    cur.execute(sql, params)
+    result = cur.fetchall()
+
+    keys = ['id','name','boss_name','boss_hp','boss_dmg']
+    return [dict(zip(keys, row)) for row in result]
+
+
+
+
+
+
+
+
 
 
 

@@ -5,7 +5,7 @@ import os
 from game_data import msgs
 import database as db
 
-BASE_VALUES = [100, 100, 15]
+BASE_VALUES = [100, 100, 15, 1, '', 0]
 
 
 load_dotenv()
