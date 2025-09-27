@@ -28,8 +28,24 @@ def init_db(cur) -> None:
             player_id TEXT UNIQUE,
             current_hp INTEGER,
             max_hp INTEGER,
-            damage INTEGER
+            damage INTEGER,
+            current_location_id INTEGER,
+            passed_locations TEXT,
+            current_boss_hp INTEGER,
+            FOREIGN KEY (current_location_id) REFERENCES locations(location_id)
     )""")
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS locations (
+            location_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            location_name TEXT UNIQUE,
+            boss_name TEXT,
+            boss_hp INTEGER,
+            boss_dmg INTEGER
+    )""")
+
+    cur.executemany('''INSERT OR IGNORE INTO locations
+                              (location_name, boss_name, boss_hp, boss_dmg)
+                              VALUES (?, ?, ?, ?)''', locations)
 
 @connect
 def load_players(cur, player_id: str) -> Optional[Dict[str, int]]:
@@ -58,5 +74,5 @@ def save_player(cur, player_id: str, player_data: list) -> None:
 
 if __name__=="__main__":
     init_db()
-    print(load_players(1))
-    save_player(2, [100,100,50])
+    # print(load_players(1))
+    # save_player(2, [100,100,50])
