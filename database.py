@@ -1,6 +1,8 @@
 import sqlite3
 from typing import Dict, Optional, List
 import traceback
+from game_data import locations
+
 
 def connect(func):
     def wrapper(*args, **kwargs):
