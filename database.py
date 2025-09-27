@@ -103,7 +103,8 @@ def update_location(cur, player_id: str, loc_id: int) -> None:
     cur.execute('UPDATE players SET current_location_id = ? WHERE player_id = ?', (loc_id, player_id))
 
 
-
+def update_current_boss_hp(cur, player_id: str, val: int) -> None:
+    cur.execute('UPDATE players SET current_boss_hp = ? WHERE player_id = ?', (val, player_id))
 
 
 
