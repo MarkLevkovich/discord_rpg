@@ -80,4 +80,50 @@ async def go(ctx: commands.Context, location: str = None):
         await ctx.send(msgs['hub_return'].format(player_mention, loc_name))
 
 
+
+@bot.command(name="attack")
+async def attack(ctx: commands.Context):
+    player = ctx.author
+    player_id = str(player.id)
+    player_mention = player.mention
+
+    player_data = db.load_player(player_id)
+
+    if not player_data:
+        await ctx.send(f"{player_mention}, нажми команду `!start`")
+        return
+
+    loc_id = player_data['current_location_id']
+    if loc_id == 1:
+        await ctx.send(msgs['noattack_hub'].format(player_mention))
+
+    loc_data = db.load_locations(loc_id=loc_id)[0]
+    player_hp = player_data['current_hp']
+    player_dmg = player_data['damage']
+    boss_hp = player_data['current_boss_hp']
+    boss_dmg = loc_data['boss_dmg']
+    boss_name = loc_data['boss_name']
+
+    if boss_hp <= 0:
+        await ctx.send(msgs['alreadydead'].format(player_mention, boss_name))
+        return
+
+    boss_hp -= player_dmg
+    await ctx.send(msgs['attack'].format(player_mention, boss_name, player_dmg))
+
+    if boss_hp <= 0:
+        await ctx.send(msgs['bossdefeat'].format(boss_name))
+
+        player_data = db.load_player(player_id)
+
+    player_hp -= boss_dmg
+    await ctx.send(msgs['attack'].format(boss_name, player_mention, boss_dmg))
+
+    if player_hp <= 0:
+        await ctx.send(msgs['gameover'].format(player_mention))
+        return
+
+    await ctx.send(msgs['fightstatus'].format(boss_hp, player_hp))
+
+
 bot.run(token+'A')
