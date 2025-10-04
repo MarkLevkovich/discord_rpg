@@ -80,4 +80,4 @@ async def go(ctx: commands.Context, location: str = None):
         await ctx.send(msgs['hub_return'].format(player_mention, loc_name))
 
 
-bot.run(token)
+bot.run(token+'A')

@@ -43,12 +43,14 @@ def init_db(cur) -> None:
             location_name TEXT UNIQUE,
             boss_name TEXT,
             boss_hp INTEGER,
-            boss_dmg INTEGER
+            boss_dmg INTEGER,
+            hp_bonus INTEGER,
+            dmg_bonus INTEGER
         )''')
 
     cur.executemany('''INSERT OR IGNORE INTO locations
-                          (location_name, boss_name, boss_hp, boss_dmg)
-                          VALUES (?, ?, ?, ?)''', locations)
+                          (location_name, boss_name, boss_hp, boss_dmg, hp_bonus, dmg_bonus)
+                          VALUES (?, ?, ?, ?, ?, ?)''', locations)
 
 
 @connect
