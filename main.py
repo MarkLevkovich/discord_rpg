@@ -135,6 +135,7 @@ async def attack(ctx: commands.Context):
         await ctx.send(msgs['gameover'].format(player_mention))
         return
 
+    db.update_hp(player_id, player_hp, boss_hp)
     await ctx.send(msgs['fightstatus'].format(boss_hp, player_hp))
 
 
