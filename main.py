@@ -20,6 +20,9 @@ bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 async def on_ready():
     print(msgs['ready'].format(bot.user))
 
+@bot.command(name="help")
+async def help(ctx: commands.Context):
+    await ctx.send(msgs["help"])
 
 @bot.command(name="start")
 async def start_game(ctx: commands.Context):
