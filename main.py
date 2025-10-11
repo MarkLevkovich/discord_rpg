@@ -39,7 +39,7 @@ async def status(ctx: commands.Context):
     current_hp = player_data['current_hp']
     max_hp = player_data['max_hp']
     damage = player_data['damage']
-    player_loc_id = player_data['current_loc_id']
+    player_loc_id = player_data['current_location_id']
     passed_locs_ids = player_data['passed_locs'].split(",") if player_data['passed_locs'] else []
 
     hp_percent = current_hp / max_hp
@@ -80,7 +80,7 @@ async def map(ctx: commands.Context):
 
     msg_data = [f"{player_mention}, вот карта твоих приключений 🗺️\n"]
     passed_locs = player_data['passed_locs'].split(",") if player_data['passed_locs'] else []
-    current_loc_id = str(player_data['current_loc_id'])
+    current_loc_id = str(player_data['current_location_id'])
 
     for data in locs_data:
         loc_id = str(data['id'])
