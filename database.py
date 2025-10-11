@@ -6,7 +6,7 @@ from game_data import locations
 
 def connect(func):
     def wrapper(*args, **kwargs):
-        conn = sqlite3.connect(r"prikladnoi\sb_15_00\28_les\game.db")
+        conn = sqlite3.connect("game.db")
         result = None
         try:
             cur = conn.cursor()
@@ -85,7 +85,7 @@ def save_player(cur, player_id: str, player_data: list) -> None:
 
 @connect
 def load_locations(cur, loc_id: int = None, loc_name: str = None) -> List[Dict]:
-    sql = 'SELECT location_id, location_name, boss_name, boss_hp, boss_dmg FROM locations'
+    sql = 'SELECT location_id, location_name, boss_name, boss_hp, boss_dmg, hp_bonus, dmg_bonus FROM locations'
     params = ()
 
     if loc_id is not None:
@@ -116,11 +116,12 @@ def update_current_boss_hp(cur, player_id: str, val: int) -> None:
 def pass_location(cur, player_id: str, loc_id: int) -> None:
     cur.execute("SELECT passed_locations FROM players WHERE player_id = ?", (player_id,))
     result = cur.fetchone()
-    passed_locations = result[0] if result[0] else ''
-    passed_locs = passed_locations.split(',') if passed_locations else []
+
+    passed_locations = result[0] if result[0] else ""
+    passed_locs = passed_locations.split(",") if passed_locations else []
     if str(loc_id) not in passed_locs:
-        passed_locations = passed_locations + (',' if passed_locations else '') + str(loc_id)
-        cur.execute('UPDATE players SET passed_locations = ? WHERE player_id = ?', (passed_locations, player_id))
+        passed_locations = passed_locations + ("," if passed_locations else "") + str(loc_id)
+        cur.execute("UPDATE players SET passed_locations = ? WHERE player_id = ?", (passed_locations, player_id))
 
 
 @connect
@@ -129,22 +130,26 @@ def add_bonus(cur, player_id: str, hp_bonus: int = 0, dmg_bonus: int = 0) -> Non
         UPDATE players SET
         max_hp = max_hp + ?,
         damage = damage + ?,
-        current_hp = max_hp + ?,
+        current_hp = max_hp + ?, 
         current_boss_hp = 0
-        WHERE player_id = ?
-    """, (hp_bonus, dmg_bonus, hp_bonus, player_id))
+        WHERE player_id = ?""", (hp_bonus, dmg_bonus, hp_bonus, player_id))
+
 
 @connect
 def restore_hp(cur, player_id: str) -> None:
     cur.execute('UPDATE players SET current_hp = max_hp WHERE player_id = ?', (player_id,))
 
+
 @connect
-def delete_player(cur, player_id: str) -> None:
-    cur.execute('DELETE FROM players WHERE player_id = ?', (player_id,))
+def delete_player(cur, playerd_id: str) -> None:
+    cur.execute("DELETE FROM players WHERE player_id = ?", (playerd_id,))
+
 
 @connect
 def update_hp(cur, player_id: str, player_hp: int, boss_hp: int) -> None:
-    cur.execute('UPDATE players SET current_hp = ?, current_boss_hp = ? WHERE player_id = ?', (player_hp, boss_hp, player_id))
+    cur.execute('UPDATE players SET current_hp = ?, current_boss_hp = ? WHERE player_id = ?',
+                (player_hp, boss_hp, player_id))
+
 
 @connect
 def check_win(cur, passed_locs: str) -> bool:
@@ -154,8 +159,9 @@ def check_win(cur, passed_locs: str) -> bool:
     return len([loc for loc in passed_locs_list if loc != "1"]) >= total_locs
 
 
-
 if __name__ == "__main__":
     init_db()
-    save_player(1, [100, 100, 15, 1, "", 0])
+    save_player("1", [100, 100, 15, 1, "", 0])
     # print(load_player(2))
+    pass_location("1", 2)
+    pass_location("1", 3)
