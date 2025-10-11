@@ -65,6 +65,45 @@ async def status(ctx: commands.Context):
     )
 
 
+@bot.command(name="map")
+async def map(ctx: commands.Context):
+    player = ctx.author
+    player_id = str(player.id)
+    player_mention = player.mention
+
+    player_data = db.load_player(player_id)
+    locs_data = db.load_locations()
+
+    if not player_data:
+        await ctx.send(f"{player.mention}, нажми команду `!start`")
+        return
+
+    msg_data = [f"{player_mention}, вот карта твоих приключений 🗺️\n"]
+    passed_locs = player_data['passed_locs'].split(",") if player_data['passed_locs'] else []
+    current_loc_id = str(player_data['current_loc_id'])
+
+    for data in locs_data:
+        loc_id = str(data['id'])
+        if loc_id == current_loc_id:
+            status = "Текущая локация 📍"
+        elif loc_id in passed_locs:
+            status = "Пройдено ✅"
+        elif loc_id == "1":
+            status = "Открыто ⭕"
+        else:
+            status = "Не исследовано ❓"
+
+        if loc_id == "1":
+            msg = msgs['locinfo_hub'].format(data['id'], data['name'], status)
+        else:
+            msg = msgs['locinfo'].format(
+                data['id'], data['name'], status, data['boss_name'], data['boss_hp'],
+                data['boss_dmg'], data['hp_bonus'], data['dmg_bonus']
+            )
+        msg_data.append(msg)
+
+    await ctx.send("\n".join(msg_data))
+
 @bot.command(name="start")
 async def start_game(ctx: commands.Context):
     player = ctx.author
