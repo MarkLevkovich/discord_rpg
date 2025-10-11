@@ -24,6 +24,47 @@ async def on_ready():
 async def help(ctx: commands.Context):
     await ctx.send(msgs["help"])
 
+@bot.command(name="status")
+async def status(ctx: commands.Context):
+    player = ctx.author
+    player_id = str(player.id)
+
+    player_data = db.load_player(player_id)
+    locs_data = db.load_locations()
+
+    if not player_data:
+        await ctx.send(f"{player.mention}, нажми команду `!start`")
+        return
+
+    current_hp = player_data['current_hp']
+    max_hp = player_data['max_hp']
+    damage = player_data['damage']
+    player_loc_id = player_data['current_loc_id']
+    passed_locs_ids = player_data['passed_locs'].split(",") if player_data['passed_locs'] else []
+
+    hp_percent = current_hp / max_hp
+    hp_bar = "❤️" * int(hp_percent * 5) + "🖤" * (5 - int(hp_percent * 5))
+
+    current_loc = "Таверна 🍺"
+    passed_locs = []
+
+    for loc in locs_data:
+        loc_id = str(loc['id'])
+        if loc_id == str(player_loc_id):
+            current_loc = loc['name']
+        if loc_id in passed_locs_ids and loc_id != "1":
+            passed_locs.append(loc['name'])
+
+    if not passed_locs:
+        passed_locs = ["Отсутствует"]
+
+    await ctx.send(
+        msgs['status'].format(
+            player.mention, current_hp, max_hp, damage, current_loc, ", ".join(passed_locs), hp_bar
+        )
+    )
+
+
 @bot.command(name="start")
 async def start_game(ctx: commands.Context):
     player = ctx.author
