@@ -112,9 +112,21 @@ async def attack(ctx: commands.Context):
     await ctx.send(msgs['attack'].format(player_mention, boss_name, player_dmg))
 
     if boss_hp <= 0:
+        db.pass_location(player_id, loc_id)
         await ctx.send(msgs['bossdefeat'].format(boss_name))
 
+        db.add_bonus(player_id, loc_data['hp_bonus'], loc_data['damage_bonus'])
+        db.restore_hp(player_id)
+
         player_data = db.load_player(player_id)
+        await ctx.send(msgs['bonus'].format(player_mention, player_data['max_hp'],
+            loc_data['hp_bonus'], player_data['damage'], loc_data['dmg_bonus']))
+
+        if db.check_win(player_data['passed_locations']):
+            await ctx.send(msgs['win'].format(player_mention))
+            db.delete_player(player_id)
+        return
+
 
     player_hp -= boss_dmg
     await ctx.send(msgs['attack'].format(boss_name, player_mention, boss_dmg))
